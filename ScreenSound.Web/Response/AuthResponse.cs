@@ -2,7 +2,7 @@
 {
     public class AuthResponse
     {       
-        public bool success {  get; set; }
+        public bool Success {  get; set; }
         public string Errors { get; set; }
     }
 }

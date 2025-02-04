@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -12,8 +13,15 @@ builder.Services.AddMudServices();
 
 builder.Services.AddScoped<CookieHandler>();
 builder.Services.AddScoped<ArtistaAPI>();
-builder.Services.AddScoped<MusicaAPI>();
-builder.Services.AddScoped<AuthAPI>();
+builder.Services.AddScoped<MusicaAPI>() ;
+builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<AuthenticationStateProvider, AuthAPI>();
+builder.Services.AddScoped<AuthAPI>(sp => (AuthAPI) 
+sp.GetRequiredService<AuthenticationStateProvider>());
+
+
+
+
 
 
 builder.Services.AddHttpClient("API",client => {
