@@ -4,6 +4,7 @@
 @code {
     protected override void OnInitialized()
     {
-        navigation.NavigateToLogin("/login");
+        
+        navigation.NavigateToLogin($"/login?ReturnUrl={Uri.EscapeDataString(navigation.Uri)}");
     }
 }
