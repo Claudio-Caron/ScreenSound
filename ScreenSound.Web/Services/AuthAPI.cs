@@ -45,7 +45,8 @@ namespace ScreenSound.Web.Services
             return new AuthResponse
             {
                 Success = false,
-                Errors = "Email ou senha invalidos"
+
+                Errors = ["Email ou senha invalidos"]
             };
         }
         public async Task LogoutAsync()

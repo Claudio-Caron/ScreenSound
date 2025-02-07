@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using ScreenSound.API.Requests;
 using ScreenSound.API.Response;
 using ScreenSound.Banco;
@@ -115,6 +116,28 @@ public static class ArtistasExtensions
             return Results.Created();
 
         });
+        groupBuilder.MapGet("{id}/avaliacao", (
+            int id,
+            HttpContext context,
+            [FromServices] DAL<Artista> dalArtista,
+            [FromServices] DAL<PessoaComAcesso> dalPessoa) =>
+        {
+            var artista = dalArtista.RecuperarPor(x => x.Id == id);
+
+            var email = context.User.Claims
+           .FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value
+           ?? throw new InvalidOperationException("Pessoa não está conectada");
+
+            var pessoa = dalPessoa.RecuperarPor(x => x.Email.Equals(email))
+            ?? throw new InvalidOperationException("Pessoa não está conectada");
+
+            
+
+            var avaliacao = artista.AvaliacoesArtista.FirstOrDefault(x=>x.PessoaId == pessoa.Id && x.ArtistaId == id);
+            if (avaliacao is null) return Results.Ok(new AvaliacaoArtistaResponse(0, id));
+            else return Results.Ok(new AvaliacaoArtistaResponse(avaliacao.Nota, id));
+
+        });
         #endregion
     }
 
@@ -125,7 +148,14 @@ public static class ArtistasExtensions
 
     private static ArtistaResponse EntityToResponse(Artista artista)
     {
-        return new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil);
+        return new ArtistaResponse(artista.Id, artista.Nome, artista.Bio, artista.FotoPerfil)
+        {
+            Classificacao = artista
+                .AvaliacoesArtista
+                .Select(x => x.Nota)
+                .DefaultIfEmpty(0)
+                .Average()
+        };
     }
 
   
